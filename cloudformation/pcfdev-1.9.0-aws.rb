@@ -79,8 +79,15 @@ SparkleFormation.new('pcfdev-1.9.0-aw') do
 	           :cidr_ip => '0.0.0.0/0'
 	  )
   dynamic!(:ec2_security_group_ingress, 'pcfdev_ec2_ssh_proxy',
-	           :from_port => '222',
-			   :to_port => '222',
+	           :from_port => '2222',
+			   :to_port => '2222',
+	           :ip_protocol => 'tcp',
+	           :group_name => ref!(:pcfdev_ec2_security_group),
+	           :cidr_ip => '0.0.0.0/0'
+	  )
+  dynamic!(:ec2_security_group_ingress, 'pcfdev_ec2_mysql',
+	           :from_port => '3306',
+			   :to_port => '3306',
 	           :ip_protocol => 'tcp',
 	           :group_name => ref!(:pcfdev_ec2_security_group),
 	           :cidr_ip => '0.0.0.0/0'

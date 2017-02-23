@@ -105,12 +105,24 @@
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "CidrIp": "0.0.0.0/0",
-        "FromPort": "222",
+        "FromPort": "2222",
         "GroupName": {
           "Ref": "PcfdevEc2SecurityGroup"
         },
         "IpProtocol": "tcp",
-        "ToPort": "222"
+        "ToPort": "2222"
+      }
+    },
+    "PcfdevEc2MysqlEc2SecurityGroupIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": "0.0.0.0/0",
+        "FromPort": "3306",
+        "GroupName": {
+          "Ref": "PcfdevEc2SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "3306"
       }
     }
   },
