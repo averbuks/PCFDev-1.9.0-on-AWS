@@ -1,0 +1,148 @@
+{
+  "Description": "AWS CloudFormation pcfdev-1.9.0-aws.rb created by avermk (markkrishka@gmail.com)",
+  "Parameters": {
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "String"
+    },
+    "InstanceType": {
+      "Type": "String",
+      "AllowedValues": [
+        "t2.medium",
+        "t2.large",
+        "t2.xlarge",
+        "t2.2xlarge"
+      ],
+      "Default": "t2.medium"
+    },
+    "DomainName": {
+      "Description": "Please, enter FQDN of your, please check that *.your.domain.name can be resolved in Public IP, You will have to assign IEP to this instance manually, if it is needed!",
+      "Type": "String"
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "us-west-2": {
+        "Ami": "ami-4766e627"
+      }
+    }
+  },
+  "Resources": {
+    "PcfdevEc2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "AvailabilityZone": "us-west-2a",
+        "ImageId": {
+          "Fn::FindInMap": [
+            "RegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            "Ami"
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Ref": "DomainName"
+          }
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "PcfdevEc2SecurityGroup"
+          }
+        ]
+      }
+    },
+    "PcfdevEc2SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for PCFDev instance"
+      }
+    },
+    "PcfdevEc2HttpEc2SecurityGroupIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": "0.0.0.0/0",
+        "FromPort": "80",
+        "GroupName": {
+          "Ref": "PcfdevEc2SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "80"
+      }
+    },
+    "PcfdevEc2HttpsEc2SecurityGroupIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": "0.0.0.0/0",
+        "FromPort": "443",
+        "GroupName": {
+          "Ref": "PcfdevEc2SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "443"
+      }
+    },
+    "PcfdevEc2SshEc2SecurityGroupIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": "0.0.0.0/0",
+        "FromPort": "22",
+        "GroupName": {
+          "Ref": "PcfdevEc2SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "22"
+      }
+    },
+    "PcfdevEc2SshProxyEc2SecurityGroupIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "CidrIp": "0.0.0.0/0",
+        "FromPort": "222",
+        "GroupName": {
+          "Ref": "PcfdevEc2SecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "ToPort": "222"
+      }
+    }
+  },
+  "Outputs": {
+    "PcfDevApi": {
+      "Description": "Availability Zone of the newly created EC2 instance",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "cf login -a https://api.",
+            {
+              "Ref": "DomainName"
+            },
+            " --skip-ssl-validation"
+          ]
+        ]
+      }
+    },
+    "PcfDevAppsManager": {
+      "Description": "Availability Zone of the newly created EC2 instance",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://apps.",
+            {
+              "Ref": "DomainName"
+            }
+          ]
+        ]
+      }
+    }
+  }
+}
