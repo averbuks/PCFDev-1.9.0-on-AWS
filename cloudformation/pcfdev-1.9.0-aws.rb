@@ -46,6 +46,7 @@ SparkleFormation.new('pcfdev-1.9.0-aw') do
 	  instance_type ref!(:instance_type)
       user_data base64!(ref!(:domain_name))
 	  security_group_ids [ref!(:pcfdev_ec2_security_group)]
+	  tags [:Key => 'Name', :Value => 'PCFDev 1.9.0']
     end
   end
   
